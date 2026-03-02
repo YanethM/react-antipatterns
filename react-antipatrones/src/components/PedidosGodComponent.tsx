@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import { ResumenPedidos } from './ResumenPedidosComponent'
+import { CrearPedido } from './CrearPedidoComponent'
 
 type Pedido = {
   id: number
@@ -52,24 +54,6 @@ function PedidosGodComponent() {
       return b.total - a.total
     })
 
-  const agregarPedido = () => {
-    if (!nuevoCliente.trim() || !nuevoTotal.trim()) return
-
-    const total = Number(nuevoTotal)
-    if (Number.isNaN(total)) return
-
-    const siguienteId = pedidos.length ? Math.max(...pedidos.map((p) => p.id)) + 1 : 1
-
-    setPedidos([
-      ...pedidos,
-      { id: siguienteId, cliente: nuevoCliente.trim(), total, estado: nuevoEstado },
-    ])
-
-    setNuevoCliente('')
-    setNuevoTotal('')
-    setNuevoEstado('pendiente')
-  }
-
   const eliminarPedido = (id: number) => {
     setPedidos(pedidos.filter((p) => p.id !== id))
   }
@@ -78,6 +62,10 @@ function PedidosGodComponent() {
     setPedidos(pedidos.map((p) => (p.id === id ? { ...p, estado } : p)))
   }
 
+  const handlePedidoCreado = (nuevoPedido: Pedido) => {
+    setPedidos([...pedidos, nuevoPedido])
+  }
+  
   const totalFacturado = pedidos.reduce((acc, pedido) => acc + pedido.total, 0)
 
   return (
@@ -85,39 +73,14 @@ function PedidosGodComponent() {
       <h1>Panel de Pedidos</h1>
       <p>Ejercicio: identifica los antipatrones de diseño presentes en este componente.</p>
 
-      <section style={{ marginBottom: 16, padding: 12, border: '1px solid #ddd' }}>
-        <h2>Resumen</h2>
-        <p>Total pedidos: {pedidos.length}</p>
-        <p>Pedidos pendientes: {contadorPendientes}</p>
-        <p>Total facturado: ${totalFacturado}</p>
-      </section>
 
-      <section style={{ marginBottom: 16, padding: 12, border: '1px solid #ddd' }}>
-        <h2>Crear pedido</h2>
-        <input
-          placeholder="Cliente"
-          value={nuevoCliente}
-          onChange={(e) => setNuevoCliente(e.target.value)}
-        />
-        <input
-          placeholder="Total"
-          value={nuevoTotal}
-          onChange={(e) => setNuevoTotal(e.target.value)}
-          style={{ marginLeft: 8 }}
-        />
-        <select
-          value={nuevoEstado}
-          onChange={(e) => setNuevoEstado(e.target.value as Pedido['estado'])}
-          style={{ marginLeft: 8 }}
-        >
-          <option value="pendiente">pendiente</option>
-          <option value="pagado">pagado</option>
-          <option value="enviado">enviado</option>
-        </select>
-        <button onClick={agregarPedido} style={{ marginLeft: 8 }}>
-          Agregar
-        </button>
-      </section>
+      <ResumenPedidos
+        totalPedidos={pedidos.length}
+        pedidosPendientes={contadorPendientes}
+        totalFacturado={totalFacturado}
+      />
+
+      <CrearPedido pedidos={pedidos} onPedidoCreado={handlePedidoCreado} />
 
       <section style={{ marginBottom: 16, padding: 12, border: '1px solid #ddd' }}>
         <h2>Filtros y orden</h2>
