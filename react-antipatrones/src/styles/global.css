@@ -1,0 +1,152 @@
+/* Global styles for Pedidos Panel */
+
+.pedidos-container {
+  max-width: 950px;
+  margin: 0 auto;
+  font-family: sans-serif;
+}
+
+.pedidos-container h1 {
+  margin-top: 0;
+}
+
+.pedidos-container p {
+  margin: 0;
+}
+
+/* Section styles */
+.section {
+  margin-bottom: 16px;
+  padding: 12px;
+  border: 1px solid #ddd;
+}
+
+.section-last {
+  padding: 12px;
+  border: 1px solid #ddd;
+}
+
+.section h2 {
+  margin: 0 0 12px 0;
+}
+
+/* Pedido Summary */
+.pedido-summary {
+  margin-bottom: 16px;
+  padding: 12px;
+  border: 1px solid #ddd;
+}
+
+.pedido-summary h2 {
+  margin: 0 0 12px 0;
+}
+
+.pedido-summary p {
+  margin: 8px 0;
+}
+
+/* Pedido Form */
+.pedido-form {
+  margin-bottom: 16px;
+  padding: 12px;
+  border: 1px solid #ddd;
+}
+
+.pedido-form h2 {
+  margin: 0 0 12px 0;
+}
+
+.form-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.form-group input,
+.form-group select,
+.form-group button {
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.form-group input {
+  padding: 6px 8px;
+}
+
+.form-group select {
+  padding: 6px 8px;
+}
+
+.form-group button {
+  padding: 6px 8px;
+  margin-left: 0;
+}
+
+/* Pedido Filter */
+.pedido-filter {
+  margin-bottom: 16px;
+  padding: 12px;
+  border: 1px solid #ddd;
+}
+
+.pedido-filter h2 {
+  margin: 0 0 12px 0;
+}
+
+.filter-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.filter-group input {
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.filter-group button {
+  padding: 6px 8px;
+  margin-left: 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* Pedido Table */
+.pedido-table {
+  padding: 12px;
+  border: 1px solid #ddd;
+}
+
+.pedido-table h2 {
+  margin: 0 0 12px 0;
+}
+
+.pedido-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.pedido-table th {
+  text-align: left;
+  padding: 8px;
+}
+
+.pedido-table td {
+  padding: 8px;
+}
+
+.pedido-table select {
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.pedido-table button {
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
