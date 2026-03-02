@@ -1,13 +1,11 @@
 import { useEffect, useState } from 'react'
 import { ResumenPedidos } from './ResumenPedidosComponent'
 import { CrearPedido } from './CrearPedidoComponent'
-
-type Pedido = {
-  id: number
-  cliente: string
-  total: number
-  estado: 'pendiente' | 'pagado' | 'enviado'
-}
+import { FiltrosPedidos } from './FiltrarPedidosComponent'
+import { usePedidos } from '../hooks/usePedidos'
+import { type Pedido } from '../types/Pedido' 
+import { useFiltrosPedidos } from '../hooks/useFiltrarPedidos'
+import { TablaPedidos } from './TablaPedidosComponent'
 
 const datosIniciales: Pedido[] = [
   { id: 1, cliente: 'Ana', total: 120, estado: 'pendiente' },
@@ -17,13 +15,11 @@ const datosIniciales: Pedido[] = [
 ]
 
 function PedidosGodComponent() {
-  const [pedidos, setPedidos] = useState<Pedido[]>([])
-  const [filtroTexto, setFiltroTexto] = useState('')
-  const [ordenAsc, setOrdenAsc] = useState(true)
-  const [nuevoCliente, setNuevoCliente] = useState('')
-  const [nuevoTotal, setNuevoTotal] = useState('')
-  const [nuevoEstado, setNuevoEstado] = useState<'pendiente' | 'pagado' | 'enviado'>('pendiente')
   const [contadorPendientes, setContadorPendientes] = useState(0)
+  const { pedidos, setPedidos, agregarPedido, eliminarPedido, cambiarEstado, generarNuevoId } =
+    usePedidos()
+  const { filtroTexto, setFiltroTexto, ordenAsc, toggleOrden, pedidosFiltrados } =
+    useFiltrosPedidos(pedidos)
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -36,37 +32,12 @@ function PedidosGodComponent() {
   }, [])
 
   useEffect(() => {
-    setContadorPendientes(pedidos.filter((p) => p.estado === 'pendiente').length)
+    setContadorPendientes(pedidos.filter((p: Pedido) => p.estado === 'pendiente').length)
     localStorage.setItem('cantidadPedidos', String(pedidos.length))
   }, [pedidos])
 
-  const pedidosFiltrados = pedidos
-    .filter((p) => {
-      const texto = filtroTexto.toLowerCase()
-      return (
-        p.cliente.toLowerCase().includes(texto) ||
-        p.estado.toLowerCase().includes(texto) ||
-        String(p.id).includes(texto)
-      )
-    })
-    .sort((a, b) => {
-      if (ordenAsc) return a.total - b.total
-      return b.total - a.total
-    })
 
-  const eliminarPedido = (id: number) => {
-    setPedidos(pedidos.filter((p) => p.id !== id))
-  }
-
-  const cambiarEstado = (id: number, estado: Pedido['estado']) => {
-    setPedidos(pedidos.map((p) => (p.id === id ? { ...p, estado } : p)))
-  }
-
-  const handlePedidoCreado = (nuevoPedido: Pedido) => {
-    setPedidos([...pedidos, nuevoPedido])
-  }
-  
-  const totalFacturado = pedidos.reduce((acc, pedido) => acc + pedido.total, 0)
+  const totalFacturado = pedidos.reduce((acc: number, pedido: Pedido) => acc + pedido.total, 0)
 
   return (
     <div style={{ maxWidth: 950, margin: '0 auto', fontFamily: 'sans-serif' }}>
@@ -80,60 +51,24 @@ function PedidosGodComponent() {
         totalFacturado={totalFacturado}
       />
 
-      <CrearPedido pedidos={pedidos} onPedidoCreado={handlePedidoCreado} />
+      <CrearPedido 
+        generarNuevoId={generarNuevoId}
+        onPedidoCreado={agregarPedido} 
+      />
 
-      <section style={{ marginBottom: 16, padding: 12, border: '1px solid #ddd' }}>
-        <h2>Filtros y orden</h2>
-        <input
-          placeholder="Buscar por id, cliente o estado"
-          value={filtroTexto}
-          onChange={(e) => setFiltroTexto(e.target.value)}
-        />
-        <button onClick={() => setOrdenAsc(!ordenAsc)} style={{ marginLeft: 8 }}>
-          Orden por total: {ordenAsc ? 'ascendente' : 'descendente'}
-        </button>
-      </section>
+      <FiltrosPedidos
+        filtroTexto={filtroTexto}
+        onFiltroChange={setFiltroTexto}
+        ordenAsc={ordenAsc}
+        onToggleOrden={toggleOrden}
+      />
 
-      <section style={{ padding: 12, border: '1px solid #ddd' }}>
-        <h2>Listado</h2>
-        {pedidosFiltrados.length === 0 ? (
-          <p>No hay pedidos</p>
-        ) : (
-          <table width="100%" cellPadding={8}>
-            <thead>
-              <tr>
-                <th align="left">ID</th>
-                <th align="left">Cliente</th>
-                <th align="left">Total</th>
-                <th align="left">Estado</th>
-                <th align="left">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {pedidosFiltrados.map((pedido) => (
-                <tr key={pedido.id}>
-                  <td>{pedido.id}</td>
-                  <td>{pedido.cliente}</td>
-                  <td>${pedido.total}</td>
-                  <td>
-                    <select
-                      value={pedido.estado}
-                      onChange={(e) => cambiarEstado(pedido.id, e.target.value as Pedido['estado'])}
-                    >
-                      <option value="pendiente">pendiente</option>
-                      <option value="pagado">pagado</option>
-                      <option value="enviado">enviado</option>
-                    </select>
-                  </td>
-                  <td>
-                    <button onClick={() => eliminarPedido(pedido.id)}>Eliminar</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </section>
+      
+      <TablaPedidos
+        pedidos={pedidosFiltrados}
+        onCambiarEstado={cambiarEstado}
+        onEliminar={eliminarPedido}
+      />
     </div>
   )
 }

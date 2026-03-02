@@ -40,3 +40,7 @@ Muestra una interfaz de gestión de pedidos con operaciones de listado, creació
     
     ### Afecta la legibilidad porque el código se vuelve más difícil de entender y seguir, especialmente para alguien nuevo que quiera ingresar al proyecto o para aquellos que no están familiarizados con el proyecto.
 - Proponer una refactorización sin cambiar el comportamiento funcional visible.
+
+## Refactorización
+
+Se separó el componente God en múltiples componentes pequeños con responsabilidad única. Se crearon componentes independientes para el resumen, formulario de creación, filtros, tabla y filas de pedidos. Se extrajeron tres hooks personalizados: `usePedidos` para operaciones CRUD, `useCrearPedido` para el estado del formulario, y `useFiltrosPedidos` para filtrado y ordenamiento. El tipo `Pedido` se movió a un archivo compartido de tipos. Cada componente ahora tiene una única responsabilidad, es más fácil de testear y mantener, y puede reutilizarse en otros contextos.
