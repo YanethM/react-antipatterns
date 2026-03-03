@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 
 export type EstadoPedido = 'pendiente' | 'pagado' | 'enviado'
 
@@ -29,18 +29,20 @@ export function usePedidos(datosIniciales: Pedido[]) {
     }
   }, [pedidos])
 
-  const agregarPedido = (cliente: string, total: number, estado: EstadoPedido) => {
-    const siguienteId = pedidos.length ? Math.max(...pedidos.map((p) => p.id)) + 1 : 1
-    setPedidos([...pedidos, { id: siguienteId, cliente, total, estado }])
-  }
+  const agregarPedido = useCallback((cliente: string, total: number, estado: EstadoPedido) => {
+    setPedidos((prev) => {
+      const siguienteId = prev.length ? Math.max(...prev.map((p) => p.id)) + 1 : 1
+      return [...prev, { id: siguienteId, cliente, total, estado }]
+    })
+  }, [])
 
-  const eliminarPedido = (id: number) => {
-    setPedidos(pedidos.filter((p) => p.id !== id))
-  }
+  const eliminarPedido = useCallback((id: number) => {
+    setPedidos((prev) => prev.filter((p) => p.id !== id))
+  }, [])
 
-  const cambiarEstado = (id: number, estado: EstadoPedido) => {
-    setPedidos(pedidos.map((p) => (p.id === id ? { ...p, estado } : p)))
-  }
+  const cambiarEstado = useCallback((id: number, estado: EstadoPedido) => {
+    setPedidos((prev) => prev.map((p) => (p.id === id ? { ...p, estado } : p)))
+  }, [])
 
   const pedidosFiltrados = useMemo(() => {
     return pedidos
