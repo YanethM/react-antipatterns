@@ -1,76 +1,74 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import type { Pedido } from '../types/pedido';
-
-const datosIniciales: Pedido[] = [
-	{ id: 1, cliente: 'Ana', total: 120, estado: 'pendiente' },
-	{ id: 2, cliente: 'Luis', total: 340, estado: 'pagado' },
-	{ id: 3, cliente: 'Carla', total: 80, estado: 'enviado' },
-	{ id: 4, cliente: 'Diego', total: 560, estado: 'pendiente' },
-];
+import { useDocumentTitle } from './useDocumentTitle';
 
 export function usePedidos() {
-	const [pedidos, setPedidos] = useState<Pedido[]>([]);
-	const [filtroTexto, setFiltroTexto] = useState('');
-	const [ordenAsc, setOrdenAsc] = useState(true);
+    const [pedidos, setPedidos] = useState<Pedido[]>(() => {
+        try {
+            const raw = localStorage.getItem('pedidos_v1');
+            if (raw) return JSON.parse(raw) as Pedido[];
+        } catch (e) {
+            console.error('Error al parsear pedidos desde localStorage', e);
+        }
+        return [];
+    });
 
-	// Carga inicial y efectos secundarios de entrada
-	useEffect(() => {
-		const timeout = setTimeout(() => {
-			setPedidos(datosIniciales);
-			localStorage.setItem('ultimoAcceso', new Date().toISOString());
-			document.title = 'Panel de pedidos';
-		}, 300);
+    const [filtroTexto, setFiltroTexto] = useState('');
+    const [ordenAsc, setOrdenAsc] = useState(true);
+    useEffect(() => {
+        localStorage.setItem('pedidos_v1', JSON.stringify(pedidos));
+        localStorage.setItem('cantidadPedidos', String(pedidos.length));
+    }, [pedidos]);
 
-		return () => clearTimeout(timeout);
-	}, []);
+    useEffect(() => {
+        localStorage.setItem('ultimoAcceso', new Date().toISOString());
+    }, []);
 
-	// Sincroniza localStorage cuando cambia la lista de pedidos
-	useEffect(() => {
-		localStorage.setItem('cantidadPedidos', String(pedidos.length));
-	}, [pedidos]);
+    useDocumentTitle('Panel de pedidos');
 
-	// Valores derivados
-	const pedidosFiltrados = pedidos
-		.filter((p) => {
-			const texto = filtroTexto.toLowerCase();
-			return (
-				p.cliente.toLowerCase().includes(texto) ||
-				p.estado.toLowerCase().includes(texto) ||
-				String(p.id).includes(texto)
-			);
-		})
-		.sort((a, b) => (ordenAsc ? a.total - b.total : b.total - a.total));
+    const pedidosFiltrados = useMemo(() => {
+        const texto = filtroTexto.toLowerCase();
+        const filtrados = pedidos.filter((p) => {
+            return (
+                p.cliente.toLowerCase().includes(texto) ||
+                p.estado.toLowerCase().includes(texto) ||
+                String(p.id).includes(texto)
+            );
+        });
+        return filtrados.sort((a, b) => (ordenAsc ? a.total - b.total : b.total - a.total));
+    }, [pedidos, filtroTexto, ordenAsc]);
 
-	const contadorPendientes = pedidos.filter((p) => p.estado === 'pendiente').length;
-	const totalFacturado = pedidos.reduce((acc, p) => acc + p.total, 0);
+    const contadorPendientes = useMemo(() => pedidos.filter((p) => p.estado === 'pendiente').length, [pedidos]);
+    const totalFacturado = useMemo(() => pedidos.reduce((acc, p) => acc + p.total, 0), [pedidos]);
 
-	// Acciones
-	const agregarPedido = (cliente: string, total: number, estado: Pedido['estado']) => {
-		const siguienteId = pedidos.length ? Math.max(...pedidos.map((p) => p.id)) + 1 : 1;
-		setPedidos((prev) => [...prev, { id: siguienteId, cliente, total, estado }]);
-	};
+    const agregarPedido = useCallback((cliente: string, total: number, estado: Pedido['estado']) => {
+        setPedidos((prev) => {
+            const siguienteId = prev.length ? Math.max(...prev.map((p) => p.id)) + 1 : 1;
+            return [...prev, { id: siguienteId, cliente, total, estado }];
+        });
+    }, []);
 
-	const eliminarPedido = (id: number) => {
-		setPedidos((prev) => prev.filter((p) => p.id !== id));
-	};
+    const eliminarPedido = useCallback((id: number) => {
+        setPedidos((prev) => prev.filter((p) => p.id !== id));
+    }, []);
 
-	const cambiarEstado = (id: number, estado: Pedido['estado']) => {
-		setPedidos((prev) => prev.map((p) => (p.id === id ? { ...p, estado } : p)));
-	};
+    const cambiarEstado = useCallback((id: number, estado: Pedido['estado']) => {
+        setPedidos((prev) => prev.map((p) => (p.id === id ? { ...p, estado } : p)));
+    }, []);
 
-	const toggleOrden = () => setOrdenAsc((prev) => !prev);
+    const toggleOrden = useCallback(() => setOrdenAsc((prev) => !prev), []);
 
-	return {
-		pedidos,
-		pedidosFiltrados,
-		filtroTexto,
-		setFiltroTexto,
-		ordenAsc,
-		toggleOrden,
-		contadorPendientes,
-		totalFacturado,
-		agregarPedido,
-		eliminarPedido,
-		cambiarEstado,
-	};
+    return {
+        pedidos,
+        pedidosFiltrados,
+        filtroTexto,
+        setFiltroTexto,
+        ordenAsc,
+        toggleOrden,
+        contadorPendientes,
+        totalFacturado,
+        agregarPedido,
+        eliminarPedido,
+        cambiarEstado,
+    };
 }

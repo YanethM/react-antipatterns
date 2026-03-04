@@ -17,8 +17,6 @@ function PedidoForm({ onAgregar }: Props) {
 		if (Number.isNaN(total)) return;
 
 		onAgregar(nuevoCliente.trim(), total, nuevoEstado);
-
-		// Resetear formulario
 		setNuevoCliente('');
 		setNuevoTotal('');
 		setNuevoEstado('pendiente');
