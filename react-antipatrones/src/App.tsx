@@ -1,8 +1,8 @@
 import './App.css'
-import PedidosGodComponent from './components/PedidosGodComponent'
+import PedidosPage from './components/pedidos/PedidosPage'
 
 function App() {
-  return <PedidosGodComponent />
+  return <PedidosPage />
 }
 
 export default App
