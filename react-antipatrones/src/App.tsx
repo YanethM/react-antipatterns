@@ -1,8 +1,8 @@
 import './App.css'
-import PedidosGodComponent from './components/PedidosGodComponent'
+import PanelPedidos from './components/PanelPedidos'
 
 function App() {
-  return <PedidosGodComponent />
+  return <PanelPedidos />
 }
 
 export default App
